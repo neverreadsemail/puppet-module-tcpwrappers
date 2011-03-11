@@ -20,6 +20,7 @@ module Puppet::Parser::Functions
 		when /^(\d+\.\d+\.\d+\.\d+)\/(\d+)$/
 			ip      = $1
 			masklen = $2
+			ip      = IPAddr.new(ip).mask(masklen).to_s
 			netmask = IPAddr.new("255.255.255.255").mask(masklen).to_s
 			"#{ip}/#{netmask}"
 		when /^\.?[a-z\d_.]+$/, /^\/[^ \n\t,:#]+$/, "ALL", "LOCAL", "PARANOID"
