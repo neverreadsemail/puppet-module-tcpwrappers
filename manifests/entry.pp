@@ -107,29 +107,3 @@ define tcpwrappers::entry($ensure = present,
 		default: { fail("Invalid ensure: ${ensure}") }
 	}
 }
-
-define tcpwrappers::allow($ensure = present,
-                          $daemon,
-                          $client,
-                          $except = undef) {
-	tcpwrappers::entry { $name:
-		ensure => $ensure,
-		type   => allow,
-		daemon => $daemon,
-		client => $client,
-		except => $except;
-	}
-}
-
-define tcpwrappers::deny($ensure = present,
-                         $daemon,
-                         $client,
-                         $except = undef) {
-	tcpwrappers::entry { $name:
-		ensure => $ensure,
-		type   => deny,
-		daemon => $daemon,
-		client => $client,
-		except => $except;
-	}
-}
