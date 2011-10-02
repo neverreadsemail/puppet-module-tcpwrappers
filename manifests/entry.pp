@@ -11,7 +11,8 @@ define tcpwrappers::entry($ensure = present,
 	}
 
 	Augeas {
-		context => "/files/etc/hosts.${type}",
+		incl    => "/etc/hosts.${type}",
+		lens    => "Tcpwrappers.lns",
 		require => File["/usr/share/augeas/lenses/tcpwrappers.aug"],
 	}
 
