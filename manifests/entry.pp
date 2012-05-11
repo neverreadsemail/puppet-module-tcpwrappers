@@ -2,7 +2,8 @@ define tcpwrappers::entry($ensure = present,
                           $type,
                           $daemon,
                           $client,
-                          $except = undef) {
+                          $except = undef,
+                          $acl    = undef) {
 	include tcpwrappers::lens
 
 	case $type {
@@ -85,6 +86,14 @@ define tcpwrappers::entry($ensure = present,
 					changes => "set ${key_entry}/clients/client[.='${client_}'] '${client_}'",
 					onlyif  => "match ${key_entry}/clients/client[.='${client_}'] size == 0",
 					require => Augeas["${key}/new"];
+			}
+
+			if $acl {
+				if $acl !~ /^([a-z][a-z0-9_-]*::)+[a-z][a-z0-9_-]*$/ {
+					fail("acl does not look like a Puppet class name")
+				}
+
+				include $acl
 			}
 		}
 		absent: {
