@@ -3,6 +3,7 @@ define tcpwrappers::entry($ensure = present,
                           $daemon,
                           $client,
                           $except = undef) {
+	include stdlib
 	include tcpwrappers::lens
 
 	case $type {
@@ -79,7 +80,7 @@ define tcpwrappers::entry($ensure = present,
 
 			augeas {
 				"${key}/new":
-					changes => sum($create_cmds, $extra_create_cmds),
+					changes => flatten([$create_cmds, $extra_create_cmds]),
 					onlyif  => "match ${key_entry} size == 0";
 				$key:
 					changes => "set ${key_entry}/clients/client[.='${client_}'] '${client_}'",
