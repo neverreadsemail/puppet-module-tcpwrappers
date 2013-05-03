@@ -13,6 +13,6 @@ define tcpwrappers::deny(
     daemon => $daemon,
     client => $client,
     except => $except,
-    order  => $order;
+    order  => $order,
   }
 }
