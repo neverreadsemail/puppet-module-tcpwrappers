@@ -25,10 +25,14 @@ module Puppet::Parser::Functions
                 netmask = IPAddr.new("255.255.255.255").mask(masklen)
 
                 case netmask.to_i
-                when 4294967295 # /32.
+                when 4278190080 # /8
+                    retval = ip.to_s.split('.').slice(0,1).join('.')+'.'
+                when 4294901760 # /16
+                    retval = ip.to_s.split('.').slice(0,2).join('.')+'.'
+                when 4294967040 # /24
+                    retval = ip.to_s.split('.').slice(0,3).join('.')+'.'
+                when 4294967295 # /32
                     retval = ip.to_s
-                when 4278190080, 4294901760, 4294967040 # /8, /16, /24.
-                    retval = ip.to_s.split('.0')[0] + '.'
                 else # Some other valid IPv4 IP/netmask.
                     retval = "#{ip.to_s}/#{netmask.to_s}"
                 end
