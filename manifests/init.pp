@@ -13,7 +13,18 @@ class tcpwrappers {
     mode  => '0644',
   }
 
-  # Append default deny if not already there
+  tcpwrappers::comment { "Managed by Puppet ${name}":
+    type   => 'allow',
+    order  => '01',
+  }
+  tcpwrappers::comment { "Managed by Puppet ${name}":
+    type   => 'deny',
+    order  => '01',
+  }
+  tcpwrappers::comment { 'Append default deny if not already there.':
+    type   => 'deny',
+    order  => 98,
+  }
   tcpwrappers::deny { 'tcpwrappers/deny-by-default':
     daemon => 'ALL',
     client => 'ALL',

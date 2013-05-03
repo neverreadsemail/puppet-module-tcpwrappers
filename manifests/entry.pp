@@ -6,6 +6,7 @@ define tcpwrappers::entry(
   $ensure=present,
   $except=undef,
   $order=10,
+  $comment=undef,
 ) {
 
   include concat::setup
@@ -26,16 +27,20 @@ define tcpwrappers::entry(
 
   $client_ = normalize_tcpwrappers_client($client)
 
-  $comment = "# Puppet ordered entry ${order}."
-
   if $except {
     $except_ = normalize_tcpwrappers_client($except)
     $key = "tcpwrappers/${type}/${daemon}:${client}:${except}"
-    $content = "${comment} ${key}\n${daemon_}:${client_} EXCEPT ${except_}\n"
+    $content = "${daemon_}:${client_} EXCEPT ${except_}\n"
   } else {
     $except_ = undef
     $key = "tcpwrappers/${type}/${daemon}:${client}"
-    $content = "${comment} ${key}\n${daemon_}:${client_}\n"
+    $content = "${daemon_}:${client_}\n"
+  }
+
+  if $comment {
+    tcpwrappers::comment { "${key}/${order}/${comment}":
+      type => $type,
+    }
   }
 
   case $ensure {
