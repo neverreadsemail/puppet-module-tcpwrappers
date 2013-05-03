@@ -13,11 +13,11 @@ class tcpwrappers {
     mode  => '0644',
   }
 
-  tcpwrappers::comment { "Managed by Puppet ${name}":
+  tcpwrappers::comment { "hosts.allow managed by Puppet ${name}":
     type   => 'allow',
     order  => '01',
   }
-  tcpwrappers::comment { "Managed by Puppet ${name}":
+  tcpwrappers::comment { "hosts.deny managed by Puppet ${name}":
     type   => 'deny',
     order  => '01',
   }
