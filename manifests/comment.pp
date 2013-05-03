@@ -14,7 +14,7 @@ define tcpwrappers::comment(
   # instantiate virtual resource.
   realize Concat["/etc/hosts.${type}"]
 
-  $comment = "# ${name}"
+  $comment = "# ${name}\n"
 
   concat::fragment { $name :
     target  => "/etc/hosts.${type}",
