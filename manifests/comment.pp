@@ -7,7 +7,7 @@ define tcpwrappers::comment(
   include concat::setup
 
   case $type {
-    comment: {} # NOOP
+    allow,deny: {} # NOOP
     default: { fail("Invalid type: ${type}") }
   }
 
