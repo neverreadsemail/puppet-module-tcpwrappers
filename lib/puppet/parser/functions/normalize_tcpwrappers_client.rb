@@ -6,23 +6,24 @@ module Puppet::Parser::Functions
                 :doc => "Convert argument into TCP Wrappers-friendly version"
     ) do |args|
         args.length == 1 or
-        raise Puppet::Error.new("#{__method__}: expecting 1 argument")
+        raise Puppet::Error.new("#{__method__}: expecting 1 argument.")
 
-        # iterate over the string after we split on space
-        retarr = []
+        args[0].is_a? String or
+        raise Puppet::Error.new("#{__method__}: argument must be a String.")
+
+        args[0].length == 0 and
+        raise Puppet::Error.new("#{__method__}: argument must contain text.")
+
+        # iterate over each string after we split on space
+        retarr = [] # array to populate.
         args[0].split(' ').each do |client|
-            v = client
-
-            if not client.is_a? String
-                raise Puppet::Error.new(
-                    "#{__method__}: argument must be a String")
-            end
+            v = nil # var to modify (or not).
 
             # Convert to IPAddr if we can.
             begin
-                ip      = IPAddr.new(client)
+                ip = IPAddr.new(client)
 
-                # Return IPv6 as we got it, process IPv4.
+                # process IPv4.
                 if ip.ipv4?
                     masklen = client.split('/')[1] || 32
                     netmask = IPAddr.new("255.255.255.255").mask(masklen)
@@ -42,18 +43,22 @@ module Puppet::Parser::Functions
                 end
 
             rescue ArgumentError => e
-                # if client is like Hostname,FQDN,suffix,filename,keyword,etc.
+                # Do nothing if client is a Hostname, FQDN, suffix,
+                # filename,keyword,etc.
                 case client
-                when 'ALL','LOCAL','PARANOID',/^\.?[a-z\d_.]+$/,/^\/[^ \n\t,:#]+$/
-                    # NOOP
+                when 'ALL'
+                when 'LOCAL'
+                when 'PARANOID'
+                when /^\.?[a-z\d_.]+$/
+                when /^\/[^ \n\t,:#]+$/
+                    # all NOOP
                 else
                     raise Puppet::Error.new(
                         "#{__method__}: invalid spec: #{client}, #{e}")
                 end
             end
-            retarr.push(v)
+            retarr.push( v || client ) # Add selected value to array.
         end
-        # Join on space before we return
-        retarr.join(' ')
+        retarr.join(' ') # Join on space, return
     end
 end
