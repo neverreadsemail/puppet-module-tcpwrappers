@@ -9,7 +9,8 @@ module Puppet::Parser::Functions
         raise Puppet::Error.new("#{__method__}: expecting 1 argument.")
 
         args[0].is_a? String or
-        raise Puppet::Error.new("#{__method__}: argument must be a String.")
+        raise Puppet::Error.new(
+            "#{__method__}: expecting String, got #{args[0].class()}.")
 
         args[0].length == 0 and
         raise Puppet::Error.new("#{__method__}: argument must contain text.")
