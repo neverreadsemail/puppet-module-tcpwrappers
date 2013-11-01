@@ -16,7 +16,7 @@ define tcpwrappers::comment(
 
   $comment = "# ${name}\n"
 
-  concat::fragment { $name :
+  concat::fragment { "Comment ${name}" :
     target  => "/etc/hosts.${type}",
     content => $comment,
     order   => $order,
