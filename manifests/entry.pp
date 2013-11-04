@@ -1,4 +1,5 @@
 # A defined type to manage entries in hosts.{allow,deny}.
+# Should only be called by either tcpwrappers::allow or tcpwrappers::deny.
 define tcpwrappers::entry(
   $type,
   $daemon,
@@ -36,7 +37,6 @@ define tcpwrappers::entry(
       type    => $type,
       order   => $order,
       before  => Concat::Fragment[$key],
-      require => Concat["/etc/hosts.${type}"],
     }
   }
 
@@ -45,6 +45,5 @@ define tcpwrappers::entry(
     target  => "/etc/hosts.${type}",
     content => $content,
     order   => $order,
-    require => Concat["/etc/hosts.${type}"],
   }
 }

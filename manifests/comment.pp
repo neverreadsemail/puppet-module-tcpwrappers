@@ -1,16 +1,13 @@
 # A defined type to manage comments in hosts.{allow,deny}.
 define tcpwrappers::comment(
   $type,
-  $order='10',
+  $ensure = 'present',
+  $order  = '10',
 ) {
+  include stdlib
 
-  case $type {
-    allow,deny: {} # NOOP
-    default: { fail("Invalid type: ${type}") }
-  }
-
-  # instantiate virtual resource.
-  realize Concat["/etc/hosts.${type}"]
+  validate_re($ensure, '^$|^present$|^absent$')
+  validate_re($type, '^$|^allow$|^deny$')
 
   $comment = "# ${name}\n"
 
@@ -18,5 +15,6 @@ define tcpwrappers::comment(
     target  => "/etc/hosts.${type}",
     content => $comment,
     order   => $order,
+    require =>  Concat["/etc/hosts.${type}"],
   }
 }
