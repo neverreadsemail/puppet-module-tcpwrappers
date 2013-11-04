@@ -16,7 +16,6 @@ class tcpwrappers (
   tcpwrappers::comment { "hosts.allow managed by Puppet ${name}":
     type    => 'allow',
     order   => '01',
-    require => Concat[$files],
   }->
   tcpwrappers::comment { "hosts.deny managed by Puppet ${name}":
     type   => 'deny',
@@ -26,7 +25,6 @@ class tcpwrappers (
     tcpwrappers::comment { 'Append default deny if not already there.':
       type    => 'deny',
       order   => '98',
-      require => Concat[$files],
     }->
     tcpwrappers::deny { 'tcpwrappers/deny-by-default':
       daemon => 'ALL',
