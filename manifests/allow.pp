@@ -14,6 +14,5 @@ define tcpwrappers::allow(
     client  => $client,
     except  => $except,
     order   => $order,
-    require => Concat['/etc/hosts.allow'],
   }
 }

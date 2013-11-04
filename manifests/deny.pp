@@ -14,6 +14,5 @@ define tcpwrappers::deny(
     client  => $client,
     except  => $except,
     order   => $order,
-    require => Concat['/etc/hosts.deny'],
   }
 }
