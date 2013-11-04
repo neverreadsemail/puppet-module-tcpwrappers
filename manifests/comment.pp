@@ -1,10 +1,8 @@
 # A defined type to manage comments in hosts.{allow,deny}.
 define tcpwrappers::comment(
   $type,
-  $order=10,
+  $order='10',
 ) {
-
-  include concat::setup
 
   case $type {
     allow,deny: {} # NOOP
@@ -16,7 +14,7 @@ define tcpwrappers::comment(
 
   $comment = "# ${name}\n"
 
-  concat::fragment { "Comment ${name}" :
+  concat::fragment { $name :
     target  => "/etc/hosts.${type}",
     content => $comment,
     order   => $order,

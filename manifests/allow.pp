@@ -1,12 +1,13 @@
 # Defined type to manage hosts.allow
 define tcpwrappers::allow(
-  $client=$name,
+  $client,
   $daemon='ALL',
   $ensure=present,
   $except=undef,
-  $order=10,
+  $order='10',
 ) {
-  tcpwrappers::entry { "Allow ${name}":
+
+  tcpwrappers::entry { $name:
     ensure => $ensure,
     type   => allow,
     daemon => $daemon,

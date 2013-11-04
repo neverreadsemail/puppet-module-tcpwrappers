@@ -1,12 +1,13 @@
 # Defined type to manage hosts.deny
 define tcpwrappers::deny(
-  $client = $name,
-  $daemon = 'ALL',
-  $ensure = present,
-  $except = undef,
-  $order  = 10,
+  $client,
+  $daemon='ALL',
+  $ensure=present,
+  $except=undef,
+  $order='10',
 ) {
-  tcpwrappers::entry { "Deny ${name}":
+
+  tcpwrappers::entry { $name:
     ensure => $ensure,
     type   => deny,
     daemon => $daemon,
