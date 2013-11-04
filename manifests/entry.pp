@@ -23,13 +23,17 @@ define tcpwrappers::entry(
   if $except {
     validate_string($except)
     $except_ = normalize_tcpwrappers_client($except)
-    $key = "tcpwrappers/${type}/${daemon}:${client}:${except}"
+    $key = "${type} ${daemon}:${client}:${except}"
     $content = "${daemon_}:${client_} EXCEPT ${except_}\n"
   } else {
     $except_ = undef
-    $key = "tcpwrappers/${type}/${daemon}:${client}"
+    $key = "${type} ${daemon}:${client}"
     $content = "${daemon_}:${client_}\n"
   }
+
+  # Concat temp filename based on $key.
+  # Most filesystems don't allow for >256 chars.
+  validate_slength($key,255)
 
   if $comment {
     validate_string($comment)
