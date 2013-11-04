@@ -15,6 +15,5 @@ define tcpwrappers::comment(
     target  => "/etc/hosts.${type}",
     content => $comment,
     order   => $order,
-    require => Concat["/etc/hosts.${type}"],
   }
 }
