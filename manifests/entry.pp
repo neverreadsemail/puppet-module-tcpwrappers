@@ -23,11 +23,11 @@ define tcpwrappers::entry(
   if $except {
     validate_string($except)
     $except_ = normalize_tcpwrappers_client($except)
-    $key = "${type} ${daemon}:${client}:${except}"
+    $key = "${type} ${daemon}:${client_}:${except}"
     $content = "${daemon_}:${client_} EXCEPT ${except_}\n"
   } else {
     $except_ = undef
-    $key = "${type} ${daemon}:${client}"
+    $key = "${type} ${daemon}:${client_}"
     $content = "${daemon_}:${client_}\n"
   }
 
