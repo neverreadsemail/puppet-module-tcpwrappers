@@ -2,7 +2,6 @@
 class tcpwrappers (
   $deny_by_default = true,
 ) {
-
   # The files to manage
   $files = ['/etc/hosts.allow','/etc/hosts.deny']
 
@@ -31,5 +30,16 @@ class tcpwrappers (
       client => 'ALL',
       order  => '99',
     }
+  }
+
+  # Install the package on Linux.  Assume nobody fiddled with
+  # the defaults on other OSes.
+  if $::kernel == 'Linux' {
+    # Normalize the TCP Wrappers package name.
+    $tcpd_name = $::osfamily ? {
+      Debian  => 'tcpd',
+      default => 'tcp_wrappers',
+    }
+    package { $tcpd_name : }
   }
 }
