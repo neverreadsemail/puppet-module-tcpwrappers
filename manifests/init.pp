@@ -34,12 +34,12 @@ class tcpwrappers (
 
   # Install the package on Linux.  Assume nobody fiddled with
   # the defaults on other OSes.
-  if $::kernel == 'Linux' {
-    # Normalize the TCP Wrappers package name.
-    $tcpd_name = $::osfamily ? {
-      Debian  => 'tcpd',
-      default => 'tcp_wrappers',
-    }
-    package { $tcpd_name : }
-  }
+  #if $::kernel == 'Linux' {
+  #  # Normalize the TCP Wrappers package name.
+  #  $tcpd_name = $::osfamily ? {
+  #    Debian  => 'tcpd',
+  #    default => 'tcp_wrappers',
+  #  }
+  #  package { $tcpd_name : }
+  #}
 }
