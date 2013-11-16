@@ -5,14 +5,17 @@ define tcpwrappers::deny(
   $ensure='present',
   $except=undef,
   $order='10',
+  $comment=undef,
+  $allow=false,
 ) {
 
   tcpwrappers::entry { $name:
-    ensure  => $ensure,
-    type    => deny,
-    daemon  => $daemon,
-    client  => $client,
-    except  => $except,
-    order   => $order,
+    ensure => $ensure,
+    type   => deny,
+    daemon => $daemon,
+    client => $client,
+    except => $except,
+    order  => $order,
+    allow  => $allow,
   }
 }

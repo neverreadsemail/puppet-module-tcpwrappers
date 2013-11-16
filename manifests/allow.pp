@@ -5,6 +5,8 @@ define tcpwrappers::allow(
   $ensure='present',
   $except=undef,
   $order='10',
+  $comment=undef,
+  $deny=false,
 ) {
 
   tcpwrappers::entry { $name:
@@ -14,5 +16,6 @@ define tcpwrappers::allow(
     client  => $client,
     except  => $except,
     order   => $order,
+    deny    => $deny,
   }
 }
