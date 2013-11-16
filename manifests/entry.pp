@@ -27,10 +27,10 @@ define tcpwrappers::entry(
     validate_string($except)
     $except_ = normalize_tcpwrappers_client($except)
     $key     = "${type} ${daemon}:${client_}:${except}"
-    $content = "${daemon}:${client_} EXCEPT ${except_}\n"
+    $content = "${daemon}:${client_} EXCEPT ${except_}"
   } else {
     $key     = "${type} ${daemon}:${client_}"
-    $content = "${daemon}:${client_}\n"
+    $content = "${daemon}:${client_}"
   }
 
   if $allow and $type == 'deny' {
@@ -61,7 +61,7 @@ define tcpwrappers::entry(
   concat::fragment { $key_ :
     ensure  => $ensure,
     target  => "/etc/hosts.${type}",
-    content => $content_,
+    content => "${content_}\n",
     order   => $order,
   }
 }
