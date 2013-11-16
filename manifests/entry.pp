@@ -35,12 +35,12 @@ define tcpwrappers::entry(
 
   if $allow and $type == 'deny' {
     validate_bool($allow)
-    $content_ = "${content}:deny"
-    $key_     = "${key}/deny"
-  } elsif $deny and $type == 'allow' {
-    validate_bool($deny)
     $content_ = "${content}:allow"
     $key_     = "${key}/allow"
+  } elsif $deny and $type == 'allow' {
+    validate_bool($deny)
+    $content_ = "${content}:deny"
+    $key_     = "${key}/deny"
   } else {
     $content_ = $content
     $key_     = $key
