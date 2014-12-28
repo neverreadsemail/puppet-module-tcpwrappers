@@ -47,8 +47,16 @@ describe 'tcpwrappers' do
         :concat_basedir  => '/foo/bar/baz',
       } end
 			it { should contain_concat('/etc/hosts.allow') }
-			it { should contain_concat__fragment('tcpd_deny_all_all_except_').with_order(
-        '999') }
+			it { should contain_concat__fragment('tcpd_deny_all_all_except_'
+                                          ).with_order('999') }
+      it { should contain_concat__fragment(
+        'tcpd_allow_all_localhost_localhost_localdomain_localhost4_localhost4_'+
+        'localdomain4_localhost6_localhost6_localdomain6_127_1_except_').with({
+        :target  => '/etc/hosts.allow',
+        :content => 'ALL:localhost localhost.localdomain localhost4 '   +
+          'localhost4.localdomain4 localhost6 localhost6.localdomain6 ' +
+          "127. [::1]:ALLOW\t# default allow localhost\n",
+      }) }
 
       case platform[:osfamily]
       when 'Debian' then
@@ -62,8 +70,20 @@ describe 'tcpwrappers' do
         it_behaves_like 'hosts.deny disabled'
       end
 
+			context 'IPv6 disabled' do
+        let(:params) do { :enable_ipv6 => false } end
+        it { should contain_concat__fragment(
+          'tcpd_allow_all_localhost_localhost_localdomain_localhost4_localhost4_'+
+          'localdomain4_localhost6_localhost6_localdomain6_127_except_').with({
+          :target  => '/etc/hosts.allow',
+          :content => 'ALL:localhost localhost.localdomain localhost4 '   +
+            'localhost4.localdomain4 localhost6 localhost6.localdomain6 ' +
+            "127.:ALLOW\t# default allow localhost\n",
+        }) }
+      end
+
 			context 'Do not deny-by-default' do
-        let(:params) do { :deny_by_default  => false } end
+        let(:params) do { :deny_by_default => false } end
           it { should_not contain_concat__fragment('tcpd_deny_all_all_except_') }
 			end
 

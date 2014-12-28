@@ -6,11 +6,13 @@ define tcpwrappers::entry(
   $client,
   $comment,
   $daemon,
+  $enable_ipv6,
   $except,
   $order,
 ) {
   private('tcpwrappers::entry for module use only. Use allow or deny types')
 
+  validate_bool($enable_ipv6)
   validate_re($action, '^(allow|deny)$')
   validate_re($daemon, '^(?:\w[\w.-]*\w|\w)$')
   validate_re($ensure, '^(ab|pre)sent$')
@@ -22,10 +24,10 @@ define tcpwrappers::entry(
   $enable_hosts_deny = $tcpwrappers::enable_hosts_deny
   validate_bool($enable_hosts_deny)
 
-  $client_real = normalize_tcpwrappers_client($client)
+  $client_real = normalize_tcpwrappers_client($client,$enable_ipv6)
   $except_real = $except ? {
     undef   => '',
-    default => normalize_tcpwrappers_client($except),
+    default => normalize_tcpwrappers_client($except,$enable_ipv6),
   }
   $target_real = $enable_hosts_deny ? {
     true  => "/etc/hosts.${action}",

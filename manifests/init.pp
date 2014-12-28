@@ -10,8 +10,9 @@ class tcpwrappers (
   $ensure            = 'present',
   $deny_by_default   = true,
   $enable_hosts_deny = false,
+  $enable_ipv6       = true,
 ) {
-  validate_bool($deny_by_default,$enable_hosts_deny)
+  validate_bool($deny_by_default,$enable_hosts_deny,$enable_ipv6)
   validate_re($ensure, '^(ab|pre)sent$')
 
   if $enable_hosts_deny {
@@ -29,6 +30,9 @@ class tcpwrappers (
     'RedHat' => 'tcp_wrappers',
     default  => undef,
   }
+
+  Tcpwrappers::Allow { enable_ipv6 => $enable_ipv6 }
+  Tcpwrappers::Deny  { enable_ipv6 => $enable_ipv6 }
 
   # Set up concat resource(s).
   concat { $concat_target :
