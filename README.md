@@ -56,11 +56,11 @@ entry to `hosts.allow` (or `hosts.deny` if `enable_hosts_deny` is `true`).
 
     tcpwrappers::allow { 'my fav subnets':
       comment => 'Need to allow favorite subnets to ALL',
-      client  => ['10.0.1.0/24','10.0.2.0/24],
+      client  => ['10.0.1.0/24','10.0.2.0/24'],
     }
 
     tcpwrappers::allow { 'my fav subnets to sshd':
-      client => ['10.0.1.0/24','10.0.2.0/24],
+      client => ['10.0.1.0/24','10.0.2.0/24'],
       daemon => 'sshd',
     }
 
