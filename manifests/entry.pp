@@ -1,67 +1,54 @@
 # A defined type to manage entries in hosts.{allow,deny}.
 # Should only be called by either tcpwrappers::allow or tcpwrappers::deny.
 define tcpwrappers::entry(
-  $type,
-  $daemon,
+  $ensure,
+  $action,
   $client,
-  $ensure=present,
-  $except=undef,
-  $order='10',
-  $comment=undef,
-  $allow=undef,
-  $deny=undef,
-  $comment=undef,
+  $comment,
+  $daemon,
+  $except,
+  $order,
 ) {
-  # concat requires stdlib, so we'll use it too.
-  include stdlib
+  private('tcpwrappers::entry for module use only. Use allow or deny types')
 
-  validate_re($ensure, '^$|^present$|^absent$')
-  validate_re($type, '^$|^allow$|^deny$')
+  validate_re($action, '^(allow|deny)$')
   validate_re($daemon, '^(?:\w[\w.-]*\w|\w)$')
-  validate_string($client)
-  validate_string($order)
+  validate_re($ensure, '^(ab|pre)sent$')
+  validate_re($order,  '^[0-9]{3}$')
+  if undef != $comment { validate_string($comment) }
+  if undef != $except  { validate_string($except)  }
 
-  $client_ = normalize_tcpwrappers_client($client)
+  include tcpwrappers
+  $enable_hosts_deny = $tcpwrappers::enable_hosts_deny
+  validate_bool($enable_hosts_deny)
 
-  if $except {
-    validate_string($except)
-    $except_ = normalize_tcpwrappers_client($except)
-    $key     = "${type} ${daemon}:${client_}:${except}"
-    $content = "${daemon}:${client_} EXCEPT ${except_}"
-  } else {
-    $key     = "${type} ${daemon}:${client_}"
-    $content = "${daemon}:${client_}"
+  $client_real = normalize_tcpwrappers_client($client)
+  $except_real = $except ? {
+    undef   => '',
+    default => normalize_tcpwrappers_client($except),
   }
-
-  if $allow and $type == 'deny' {
-    validate_bool($allow)
-    $content_ = "${content}:allow"
-    $key_     = "${key}/allow"
-  } elsif $deny and $type == 'allow' {
-    validate_bool($deny)
-    $content_ = "${content}:deny"
-    $key_     = "${key}/deny"
-  } else {
-    $content_ = $content
-    $key_     = $key
+  $target_real = $enable_hosts_deny ? {
+    true  => "/etc/hosts.${action}",
+    false => '/etc/hosts.allow',
   }
+  $key = regsubst(downcase(join([
+    'tcpd',
+    $action,
+    $daemon,
+    $client_real,
+    'except',
+    $except_real,
+  ],' ')),'\W+','_','G')
 
   # Concat temp filename based on $key.
   # Most filesystems don't allow for >256 chars.
-  validate_slength($key_,255)
+  validate_slength($key,255)
 
-  if $comment {
-    validate_string($comment)
-    tcpwrappers::comment { "${key}/${order}/${comment}":
-      type    => $type,
+  if 'present' == $ensure {
+    concat::fragment { $key :
+      target  => $target_real,
+      content => template('tcpwrappers/entry.erb'),
       order   => $order,
-      before  => Concat::Fragment[$key_],
     }
-  }
-  concat::fragment { $key_ :
-    ensure  => $ensure,
-    target  => "/etc/hosts.${type}",
-    content => "${content_}\n",
-    order   => $order,
   }
 }

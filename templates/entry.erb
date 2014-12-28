@@ -1,0 +1,9 @@
+<%- if @comment then -%>
+# BEGIN <%= @comment %>
+<%- end -%>
+<%= @daemon %>:<%= @client_real -%>
+<%- if @except then -%> EXCEPT <%= @except_real -%><%- end -%>
+<%- unless @enable_hosts_deny then -%>:<%= @action.upcase -%><%- end %>
+<%- if @comment then -%>
+# END
+<%- end -%>

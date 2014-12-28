@@ -1,45 +1,55 @@
 # Initialization class for tcpwrappers module.
+#
+# NOTE: Almost any modern version of tcpd can accept an ACL option at
+# the end of the line, e.g. ': ALLOW' or ': DENY'. In addition to
+# making debugging more obvious by containing all settings in a single
+# file, BSD kernels notably list /etc/hosts.deny as deprecated. So, we
+# want all entries in /etc/hosts.allow to be the default behavior. See
+# `man 5 hosts_options` on your OS for details.
 class tcpwrappers (
-  $deny_by_default = true,
+  $ensure            = 'present',
+  $deny_by_default   = true,
+  $enable_hosts_deny = false,
 ) {
-  # The files to manage
-  $files = ['/etc/hosts.allow','/etc/hosts.deny']
+  validate_bool($deny_by_default,$enable_hosts_deny)
+  validate_re($ensure, '^(ab|pre)sent$')
 
-  # Set up concat resource.
-  concat { $files :
-    owner => 'root',
-    group => 'root',
-    mode  => '0644',
+  if $enable_hosts_deny {
+    $concat_target = ['/etc/hosts.allow','/etc/hosts.deny']
+  } else {
+    $concat_target = '/etc/hosts.allow'
+    file { '/etc/hosts.deny':
+      ensure  => 'absent',
+      require => Concat[$concat_target],
+    }
   }
 
-  tcpwrappers::comment { "hosts.allow managed by Puppet ${name}":
-    type    => 'allow',
-    order   => '01',
+  $tcpd_name = $::osfamily ? {
+    'Debian' => 'tcpd',
+    'RedHat' => 'tcp_wrappers',
+    default  => undef,
   }
-  tcpwrappers::comment { "hosts.deny managed by Puppet ${name}":
-    type   => 'deny',
-    order  => '01',
+
+  # Set up concat resource(s).
+  concat { $concat_target :
+    ensure => $ensure,
+    group  => 'root',
+    mode   => '0644',
+    order  => 'numeric',
+    owner  => 'root',
+    warn   => true,
   }
+
+  # Conditionally install
+  if $tcpd_name { ensure_packages($tcpd_name, { before => Concat[$files] }) }
+
   if $deny_by_default == true {
-    tcpwrappers::comment { 'Append default deny if not already there.':
-      type    => 'deny',
-      order   => '98',
-    }
-    tcpwrappers::deny { 'tcpwrappers/deny-by-default':
-      daemon => 'ALL',
-      client => 'ALL',
-      order  => '99',
+    tcpwrappers::deny { 'deny_by_default':
+      ensure  => $ensure,
+      comment => 'deny everything by default',
+      daemon  => 'ALL',
+      client  => 'ALL',
+      order   => '999',
     }
   }
-
-  # Install the package on Linux.  Assume nobody fiddled with
-  # the defaults on other OSes.
-  #if $::kernel == 'Linux' {
-  #  # Normalize the TCP Wrappers package name.
-  #  $tcpd_name = $::osfamily ? {
-  #    Debian  => 'tcpd',
-  #    default => 'tcp_wrappers',
-  #  }
-  #  package { $tcpd_name : }
-  #}
 }

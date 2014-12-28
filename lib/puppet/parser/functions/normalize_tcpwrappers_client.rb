@@ -8,16 +8,26 @@ module Puppet::Parser::Functions
         args.length == 1 or
         raise Puppet::Error.new("#{__method__}: expecting 1 argument.")
 
-        args[0].is_a? String or
-        raise Puppet::Error.new(
-            "#{__method__}: expecting String, got #{args[0].class()}.")
+        args[0].is_a? String or args[0].is_a? Array or raise Puppet::Error.new(
+            "#{__method__}: expecting String or Array, got #{args[0].class()}.")
 
-        args[0].length == 0 and
-        raise Puppet::Error.new("#{__method__}: argument must contain text.")
+        if args[0].is_a? Array then
+          args[0].each { |i|
+            i.is_a? String or raise Puppet::Error.new(
+              "#{__method__}: expecting Array of Strings, got #{i.class()}.")
+            i.include?(' ') and raise Puppet::Error.new(
+              "#{__method__}: expecting Array of Strings without spaces, got '#{i}'.")
+          }
+          myarr = args[0]
+        else
+          myarr = args[0].split(' ')
+          args[0].length == 0 and raise Puppet::Error.new(
+            "#{__method__}: argument must contain text.")
+        end
 
         # iterate over each string after we split on space
         retarr = [] # array to populate.
-        args[0].split(' ').each do |client|
+        myarr.each do |client|
             v = nil # var to modify (or not).
 
             # Convert to IPAddr if we can.
