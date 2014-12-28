@@ -37,9 +37,7 @@ define tcpwrappers::entry(
     'tcpd',
     $action,
     $daemon,
-    $client_real,
-    'except',
-    $except_real,
+    $name,
   ],' ')),'\W+','_','G')
 
   # Concat temp filename based on $key.

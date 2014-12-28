@@ -18,7 +18,7 @@ describe 'tcpwrappers::allow', :type => 'define' do
 
   context 'with no params' do
     it do
-      should contain_concat__fragment('tcpd_allow_all_10_except_').with(
+      should contain_concat__fragment('tcpd_allow_all_10_0_0_0_255_0_0_0').with(
         :order   => '100',
         :target  => '/etc/hosts.allow',
         :content => "ALL:10.:ALLOW\n",
@@ -29,7 +29,7 @@ describe 'tcpwrappers::allow', :type => 'define' do
         'class { tcpwrappers: enable_hosts_deny => true }',
       ] end
       it do
-        should contain_concat__fragment('tcpd_allow_all_10_except_').with(
+        should contain_concat__fragment('tcpd_allow_all_10_0_0_0_255_0_0_0').with(
           :order   => '100',
           :target  => '/etc/hosts.allow',
           :content => "ALL:10.\n",
@@ -48,7 +48,7 @@ describe 'tcpwrappers::allow', :type => 'define' do
       :comment => 'sshd tweaks',
     } end
     it do
-      should contain_concat__fragment('tcpd_allow_sshd_10_0_192_168_0_except_192_168_0_0_255_255_255_192').with(
+      should contain_concat__fragment('tcpd_allow_sshd_10_0_0_0_255_0_0_0').with(
         :order   => '111',
         :target  => '/etc/hosts.allow',
         :content => "sshd:10.0. 192.168.0. EXCEPT 192.168.0.0/255.255.255.192:ALLOW\t# sshd tweaks\n",
@@ -60,7 +60,7 @@ describe 'tcpwrappers::allow', :type => 'define' do
         'class { tcpwrappers: enable_hosts_deny => true }',
       ] end
       it do
-        should contain_concat__fragment('tcpd_allow_sshd_10_0_192_168_0_except_192_168_0_0_255_255_255_192').with(
+        should contain_concat__fragment('tcpd_allow_sshd_10_0_0_0_255_0_0_0').with(
           :order   => '111',
           :target  => '/etc/hosts.allow',
           :content => "sshd:10.0. 192.168.0. EXCEPT 192.168.0.0/255.255.255.192\t# sshd tweaks\n",
