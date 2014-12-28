@@ -51,7 +51,7 @@ describe 'tcpwrappers::deny', :type => 'define' do
       should contain_concat__fragment('tcpd_deny_sshd_10_0_192_168_0_except_192_168_0_0_255_255_255_192').with(
         :order   => '111',
         :target  => '/etc/hosts.allow',
-        :content => "# BEGIN sshd tweaks\nsshd:10.0. 192.168.0. EXCEPT 192.168.0.0/255.255.255.192:DENY\n# END\n",
+        :content => "sshd:10.0. 192.168.0. EXCEPT 192.168.0.0/255.255.255.192:DENY\t# sshd tweaks\n",
       )
     end
 
@@ -63,7 +63,7 @@ describe 'tcpwrappers::deny', :type => 'define' do
         should contain_concat__fragment('tcpd_deny_sshd_10_0_192_168_0_except_192_168_0_0_255_255_255_192').with(
           :order   => '111',
           :target  => '/etc/hosts.deny',
-          :content => "# BEGIN sshd tweaks\nsshd:10.0. 192.168.0. EXCEPT 192.168.0.0/255.255.255.192\n# END\n",
+          :content => "sshd:10.0. 192.168.0. EXCEPT 192.168.0.0/255.255.255.192\t# sshd tweaks\n",
         )
       end
     end

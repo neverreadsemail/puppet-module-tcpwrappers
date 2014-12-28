@@ -26,7 +26,7 @@ describe 'tcpwrappers' do
     it { should_not contain_file('/etc/hosts.deny').with_ensure('absent') }
     it { should contain_concat__fragment('tcpd_deny_all_all_except_').with({
       :target  => '/etc/hosts.deny',
-      :content => "# BEGIN deny everything by default\nALL:ALL\n# END\n"
+      :content => "ALL:ALL\t# default deny everything\n"
     }) }
   end
 
@@ -35,7 +35,7 @@ describe 'tcpwrappers' do
     it { should contain_file('/etc/hosts.deny').with_ensure('absent') }
     it { should contain_concat__fragment('tcpd_deny_all_all_except_').with({
       :target  => '/etc/hosts.allow',
-      :content => "# BEGIN deny everything by default\nALL:ALL:DENY\n# END\n"
+      :content => "ALL:ALL:DENY\t# default deny everything\n"
     }) }
   end
 

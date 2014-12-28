@@ -43,12 +43,24 @@ class tcpwrappers (
   # Conditionally install
   if $tcpd_name { ensure_packages($tcpd_name, { before => Concat[$files] }) }
 
+  tcpwrappers::allow { 'localhost':
+    ensure  => $ensure,
+    comment => 'default allow localhost',
+    order   => '001',
+    client  => [
+      'localhost',
+      'localhost.localdomain',
+      'localhost4','localhost4.localdomain4',
+      'localhost6','localhost6.localdomain6',
+      '127.0.0.0/8',
+      '::1',
+    ],
+  }
+
   if $deny_by_default == true {
-    tcpwrappers::deny { 'deny_by_default':
+    tcpwrappers::deny { 'ALL':
       ensure  => $ensure,
-      comment => 'deny everything by default',
-      daemon  => 'ALL',
-      client  => 'ALL',
+      comment => 'default deny everything',
       order   => '999',
     }
   }
