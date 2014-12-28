@@ -2,56 +2,72 @@
 
 ## Overview
 
-Manages hosts.allow and hosts.deny.
+Manages _hosts.allow_ and _hosts.deny_.
 
-Requires https://github.com/puppetlabs/puppetlabs-concat
-Requires https://github.com/puppetlabs/puppetlabs-stdlib
-
+* Requires https://github.com/puppetlabs/puppetlabs-concat
+* Requires https://github.com/puppetlabs/puppetlabs-stdlib
 
 ## Usage
 
 ### `tcpwrappers`
 ```puppet
-    include tcpwrappers
+  include tcpwrappers
 ```
 
-
+#### Parameters
 The following optional parameters are available:
 
-* _ensure_
-    * Whether we should have *any* tcpd files around, 'present' or 'absent'.
-    Default 'present'.
-* _deny\_by\_default_
-    * Installs the default 'ALL:ALL' hosts.deny entry if true. Default: true.
-* _enable\_hosts\_deny_
+* `ensure`
+    * Whether we should have *any* tcpd files around, `present` or `absent`.
+    Default `present`.
+* `deny_by_default`
+    * Installs the default `ALL:ALL` _hosts.deny_ entry if true.
+    Default: `true`.
+* `enable_hosts_deny`
     * Puts rejection ACLs in `/etc/hosts.deny` if true. Otherwise, all
     entries are places in `/etc/hosts.allow` and appended with either
     `:ALLOW` or `:DENY`. In this case, `/etc/hosts.deny` is also deleted.
-    Default: false
+    Default: `false`
 
 ### `tcpwrappers::allow` and `tcpwrappers::deny`
 1. Both `tcpwrappers::allow` or `tcpwrappers::deny` add the specified
-entry to `hosts.allow` (or `hosts.deny` if `enable_hosts_deny` is `true`).
+entry to _hosts.allow_ (or _hosts.deny_ if `enable_hosts_deny` is `true`).
 2. The `name` variable is not significant if the `client` parameter is used.
 3. Both types may be called without explicitly calling the `tcpwrappers` class.
-```puppet
-    # Simple client specification
-    tcpwrappers::allow { '10.0.2.0/24': }
-    tcpwrappers::deny  { '10.0.1.0/24': }
 
+#### EXAMPLES
+
+##### Simple client specification
+```puppet
+    tcpwrappers::allow { '10.0.2.0/24': }
+    tcpwrappers::deny  { '10.0.0.0/8':  }
+```
+##### Allow more specific, deny less specific
+```puppet
     # By default, allow comes before default, so:
     tcpwrappers::allow { '10.0.3.1': }
-    tcpwrappers::deny  { '10.0.1.0/24': }
-    # ...is equivalent to:
-    tcpwrappers::allow { '10.0.3.1':     order => '100' }
-    tcpwrappers::deny  { '10.0.1.0/24':  order => '200' }
+    tcpwrappers::deny  { '10.0.3.0/24': }
 
-    # To deny a single host, but allow the rest of the subnet ensure the order
-    # (requires enable_hosts_deny to be false (default)):
+    # ...is equivalent to:
+    tcpwrappers::allow { '10.0.3.1':
+      daemon => 'ALL',
+      order  => '100',
+    }
+    tcpwrappers::deny { '10.0.3.0/24':
+      daemon => 'ALL',
+      order  => '200',
+    }
+```
+##### Deny more specific, allow less specific
+To deny a single host, but allow the rest of the subnet, ensure the order
+(requires `enable_hosts_deny` to be _false_ -- the default):
+```puppet
     tcpwrappers::deny  { '10.0.3.1': order => '099' }
     tcpwrappers::allow { '10.0.1.0/24': }
-
-    # Allowing multiple subnets can happen a couple different ways:
+```
+##### Multiple clients
+Specifying multiple subnets can happen a couple different ways:
+```puppet
     tcpwrappers::allow { ['10.0.1.0/24','10.0.2.0/24']: }
 
     tcpwrappers::allow { 'my fav subnets':
@@ -63,32 +79,34 @@ entry to `hosts.allow` (or `hosts.deny` if `enable_hosts_deny` is `true`).
       client => ['10.0.1.0/24','10.0.2.0/24'],
       daemon => 'sshd',
     }
+```
 
-    # With an exception specification
+##### With an exception specification
+```puppet
     tcpwrappers::allow { 'ALL':
         daemon => 'mydaemon',
         client => 'ALL',
         except => '/etc/hosts.deny.inc',
     }
 ```
-
+#### Parameters
 The following optional parameters are available:
 
-* _ensure_
+* `ensure`
     * Whether the entry should be 'present' or 'absent'.  Default 'present'.
-* _client_
+* `client`
     * The client specification to be added.  May be a string or array or
     strings. Each string must evaluate to a valid IPv4 or IPv6 subnet.
     Default: '$name'.
-* _comment_
+* `comment`
     * A comment to go above the entry. Default: none.
-* _daemon_
+* `daemon`
     * The identifier supplied to libwrap by the daemon, often just the
     process name. Default: 'ALL'.
-* _except_
+* `except`
     * Another client specification, acting as a filter for the first
     client specifiction. Default: none.
-* _order_
+* `order`
     * The 3-number digit, signifying the order the line appears in the
     file. Default is '100' for tcpwrappers::allow and '200' for
     tcpwrappers::deny.
@@ -98,16 +116,16 @@ following forms:
 
 Type           | Example
 -------------- | -------
-FQDN:          | example.com
-Domain suffix: | .example.com
-IP address:    | 192.0.2.1
-IP prefix:     | 192. 192.0. 192.0.2.
-IP range:      | 192.0.2.0/24 192.0.2.0/255.255.255.0
-Filename:      | /path/to/file.acl
-Keyword:       | ALL LOCAL PARANOID
+FQDN:          | `example.com`
+Domain suffix: | `.example.com`
+IP address:    | `192.0.2.1`
+IP prefix:     | `192.` `192.0.` `192.0.2.`
+IP range:      | `192.0.2.0/24` `192.0.2.0/255.255.255.0`
+Filename:      | `/path/to/file.acl`
+Keyword:       | `ALL` `LOCAL` `PARANOID`
 
-The client specification will be normalized before being matched against
-or added to the existing entries in hosts.allow/hosts.deny.
+The client specification will be normalized before being matched
+against or added to the existing entries in _hosts.allow_/_hosts.deny_.
 
 
 ## See also
