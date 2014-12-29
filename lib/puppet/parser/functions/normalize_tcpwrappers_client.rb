@@ -1,33 +1,40 @@
 require 'ipaddr'
 
 module Puppet::Parser::Functions
-   newfunction(:normalize_tcpwrappers_client,
-              :type => :rvalue,
-              :doc => "Convert argument into TCP Wrappers-friendly version"
+  newfunction(:normalize_tcpwrappers_client,
+               :type => :rvalue,
+               :doc  => "Convert argument into TCP Wrappers-friendly version"
   ) do |args|
-    args.length == 2 or
-    raise Puppet::Error.new("#{__method__}: expecting 2 argument.")
 
-    args[0].is_a? String or args[0].is_a? Array or raise Puppet::Error.new(
-        "#{__method__}: expecting String or Array, got #{args[0].class()}.")
+    # Validate input
+    raise Puppet::ParseError.new("#{__method__}: expecting 2 argument.") \
+      unless args.length == 2
+
+    raise Puppet::ParseError.new(
+      "#{__method__}: expecting String or Array, got #{args[0].class()}.") \
+      unless args[0].is_a? String or args[0].is_a? Array
 
     if args[0].is_a? Array then
       args[0].each { |i|
-        i.is_a? String or raise Puppet::Error.new(
-        "#{__method__}: expecting Array of Strings, got #{i.class()}.")
-        i.include?(' ') and raise Puppet::Error.new(
-          "#{__method__}: expecting Array of Strings without spaces, got '#{i}'.")
+
+        raise Puppet::ParseError.new(
+          "#{__method__}: expecting Array of Strings, got #{i.class()}.") \
+          unless i.is_a? String
+
+        raise Puppet::ParseError.new(
+          "#{__method__}: expecting Array of Strings without spaces. " +
+          "Got '#{i}'.") if i.include?(' ')
       }
       myarr = args[0]
     else
       myarr = args[0].split(' ')
-      args[0].length == 0 and raise Puppet::Error.new(
-        "#{__method__}: argument must contain text.")
+      raise Puppet::ParseError.new(
+        "#{__method__}: argument must contain text.") if args[0].length == 0
     end
 
     # Output IPv6?
     args[1].is_a? TrueClass or args[1].is_a? FalseClass or
-      raise Puppet::Error.new("#{__method__}: 2nd argument must true or false.")
+      raise Puppet::ParseError.new("#{__method__}: 2nd argument must true or false.")
 
     # iterate over each string after we split on space
     retarr = [] # array to populate.
@@ -47,7 +54,7 @@ module Puppet::Parser::Functions
         when /^\/[^ \n\t,:#]+$/ then
           # all NOOP
         else
-          raise Puppet::Error.new(
+          raise Puppet::ParseError.new(
             "#{__method__}: invalid spec: #{client}, #{e}")
         end
       else
@@ -76,8 +83,9 @@ module Puppet::Parser::Functions
 
           masklen = client.split('/')[1] || 128
 
-          raise Puppet::Error.new(
-            "#{__method__}: invalid spec: #{client}, #{e}") unless masklen.to_i <= 128 and masklen.to_i >= 0
+          raise Puppet::ParseError.new(
+            "#{__method__}: invalid spec: #{client}, #{e}") \
+            unless masklen.to_i <= 128 and masklen.to_i >= 0
 
           v = masklen.eql?(128) ? "[#{ip.to_s}]":"[#{ip.to_s}]/#{masklen.to_s}"
         end

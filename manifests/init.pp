@@ -45,7 +45,9 @@ class tcpwrappers (
   }
 
   # Conditionally install
-  if $tcpd_name { ensure_packages($tcpd_name, { before => Concat[$files] }) }
+  if $tcpd_name {
+    ensure_packages($tcpd_name, { before => Concat[$concat_target] })
+  }
 
   tcpwrappers::allow { 'localhost':
     ensure  => $ensure,
